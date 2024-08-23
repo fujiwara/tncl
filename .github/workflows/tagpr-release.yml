@@ -1,0 +1,55 @@
+name: tagpr and release
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "release tag"
+        required: false
+        type: string
+
+permissions:
+  pull-requests: write
+  packages: write
+  contents: write
+  actions: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: Songmu/tagpr@v1
+        id: tagpr
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.event_name != 'workflow_dispatch' }} # skip on workflow_dispatch
+
+      # after tagpr adds a release tag, or workflow_dispatch, release it
+
+      - name: Set up Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.13.0
+          cache: true
+        if: ${{ steps.tagpr.outputs.tag != '' || github.event_name == 'workflow_dispatch' }}
+
+      - name: build release
+        run: make build-release
+        if: ${{ steps.tagpr.outputs.tag != '' || github.event_name == 'workflow_dispatch' }}
+
+      - name: setup ghr
+        run: |
+          curl -sL https://github.com/tcnksm/ghr/releases/download/v0.16.2/ghr_v0.16.2_linux_amd64.tar.gz | tar xz -C /tmp
+          install -m 755 /tmp/ghr_v0.16.2_linux_amd64/ghr /usr/local/bin/ghr
+          ghr --version
+
+      - name: release
+        run: |
+          ghr -u ${{ github.repository_owner }} -r ${{ github.event.repository.name }} ${{ steps.tagpr.outputs.tag }} ./pkg/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
