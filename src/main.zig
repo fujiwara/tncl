@@ -5,10 +5,10 @@ pub fn main() !void {
     const port = try getPortFromArgs();
     const addr = std.net.Address.initIp4(.{ 0, 0, 0, 0 }, port);
     var server = try addr.listen(.{ .reuse_address = true });
-    std.log.info("Listening on port {d}...", .{port});
+    std.log.info("listening on port {d}...", .{port});
 
     var client = try server.accept();
-    std.log.info("Accepted connection from {}", .{client.address});
+    std.log.info("accepted connection from {}", .{client.address});
     defer client.stream.close();
 
     var sender_thread = try std.Thread.spawn(.{}, sender, .{&client.stream});
@@ -16,8 +16,6 @@ pub fn main() !void {
 
     sender_thread.join();
     reciever_thread.join();
-
-    std.log.info("Done", .{});
 }
 
 fn reciever(stream: *std.net.Stream) !void {

@@ -9,6 +9,7 @@ jobs:
         uses: goto-bus-stop/setup-zig@v2
         with:
           version: 0.13.0
+          cache: true
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
