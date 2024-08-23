@@ -32,6 +32,7 @@ When the all data is sent, `tncl` will close the connection and exit.
 ## Limitations
 
 - Only supports TCP.
+- Only supports IPv4.
 - Does not accept multiple connections.
 
 ## License
