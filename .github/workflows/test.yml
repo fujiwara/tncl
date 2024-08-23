@@ -1,4 +1,4 @@
-name: Go
+name: test
 on: [push, pull_request]
 jobs:
   test:
@@ -11,7 +11,7 @@ jobs:
           version: 0.13.0
           cache: true
 
-      - name: Check out code into the Go module directory
+      - name: Check out code
         uses: actions/checkout@v4
 
       - name: zig test and build
