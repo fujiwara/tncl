@@ -9,3 +9,6 @@ run:
 
 test:
 	zig test src/main.zig
+
+clean:
+	rm -rf .zig-cache

@@ -29,6 +29,10 @@ $ tncl 1234 < /tmp/input
 
 When the all data is sent, `tncl` will close the connection and exit.
 
+## Notes
+
+`tncl` exits with status 0 when the client disconnects OR the stdin is closed.
+
 ## Limitations
 
 - Only supports TCP.

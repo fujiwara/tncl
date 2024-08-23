@@ -29,7 +29,7 @@ fn reciever(stream: *std.net.Stream) !void {
         if (read_bytes == 0) {
             std.log.info("client closed connection", .{});
             // client closed connection
-            break;
+            std.process.exit(0);
         }
         try stdout.writeAll(buffer[0..read_bytes]);
     }
@@ -42,7 +42,8 @@ fn sender(stream: *std.net.Stream) !void {
         const read_bytes = try stdin.read(buffer[0..]);
         if (read_bytes == 0) {
             std.log.info("stdin closed", .{});
-            break;
+            // stdin closed
+            std.process.exit(0);
         }
         try stream.writeAll(buffer[0..read_bytes]);
     }
