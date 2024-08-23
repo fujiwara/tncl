@@ -43,7 +43,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          make build-release
+          make release-build
           curl -sL https://github.com/tcnksm/ghr/releases/download/v0.16.2/ghr_v0.16.2_linux_amd64.tar.gz | tar xz -C /tmp
           install -m 755 /tmp/ghr_v0.16.2_linux_amd64/ghr /usr/local/bin/ghr
           ghr --version

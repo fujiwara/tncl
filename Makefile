@@ -16,6 +16,3 @@ test:
 
 clean:
 	rm -rf .zig-cache pkg/
-
-release:
-	$(MAKE) release-build
