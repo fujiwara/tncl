@@ -50,11 +50,10 @@ fn sender(stream: *std.net.Stream) !void {
 }
 
 fn getPortFromArgs() !u16 {
-    const alc = std.heap.page_allocator;
-    const args = try std.process.argsAlloc(alc);
-    defer std.process.argsFree(alc, args);
+    var args = std.process.args();
+    _ = std.mem.sliceTo(args.next().?, 0); // cmd name is not used
     var port: u16 = default_port;
-    for (args[1..]) |arg| {
+    while (args.next()) |arg| {
         port = try std.fmt.parseInt(u16, arg, 10);
         break;
     }
