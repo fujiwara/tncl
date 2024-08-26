@@ -1,11 +1,10 @@
 const std = @import("std");
-const default_port = 12345;
 
 pub fn main() !void {
-    const port = try getPortFromArgs();
-    const addr = std.net.Address.initIp4(.{ 0, 0, 0, 0 }, port);
+    const opt = try getOptionsFromArgs();
+    const addr = std.net.Address.initIp4(.{ 0, 0, 0, 0 }, opt.port);
     var server = try addr.listen(.{ .reuse_address = true });
-    std.log.info("listening on port {d}...", .{port});
+    std.log.info("listening on port {d}...", .{opt.port});
 
     var client = try server.accept();
     std.log.info("accepted connection from {}", .{client.address});
@@ -47,13 +46,29 @@ fn sender(stream: *std.net.Stream) !void {
     }
 }
 
-fn getPortFromArgs() !u16 {
+const Options = struct {
+    port: u16,
+};
+
+const OptionsError = error{
+    MissingPortNumber,
+};
+
+fn getOptionsFromArgs() !Options {
     var args = std.process.args();
     _ = std.mem.sliceTo(args.next().?, 0); // cmd name is not used
-    var port: u16 = default_port;
+    var port: u16 = 0;
     while (args.next()) |arg| {
         port = try std.fmt.parseInt(u16, arg, 10);
         break;
     }
-    return port;
+    if (port == 0) {
+        return OptionsError.MissingPortNumber;
+    }
+    return .{ .port = port };
 }
+
+pub const std_options = .{
+    // Set the log level to info
+    .log_level = .info,
+};

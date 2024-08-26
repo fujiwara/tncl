@@ -1,7 +1,8 @@
 build:
 	zig build
 
-release-build: clean
+release-build:
+	rm -fr pkg
 	mkdir -p pkg
 	for target in aarch64-linux-musl x86_64-linux-musl; do \
 		zig build -Doptimize=ReleaseSmall -Dtarget=$$target; \
