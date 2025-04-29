@@ -11,13 +11,13 @@ pub fn main() !void {
     defer client.stream.close();
 
     var sender_thread = try std.Thread.spawn(.{}, sender, .{&client.stream});
-    var reciever_thread = try std.Thread.spawn(.{}, reciever, .{&client.stream});
+    var receiver_thread = try std.Thread.spawn(.{}, receiver, .{&client.stream});
 
     sender_thread.join();
-    reciever_thread.join();
+    receiver_thread.join();
 }
 
-fn reciever(stream: *std.net.Stream) !void {
+fn receiver(stream: *std.net.Stream) !void {
     const stdout = std.io.getStdOut().writer();
     const reader = stream.reader();
     while (true) {
