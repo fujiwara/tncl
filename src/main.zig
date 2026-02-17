@@ -3,10 +3,10 @@ const std = @import("std");
 pub fn main() !void {
     const opt = try getOptionsFromArgs();
     var server = try opt.address.listen(.{ .reuse_address = true });
-    std.log.info("listening on {}...", .{opt.address});
+    std.log.info("listening on {f}...", .{opt.address});
 
     var client = try server.accept();
-    std.log.info("accepted connection from {}", .{client.address});
+    std.log.info("accepted connection from {f}", .{client.address});
     defer client.stream.close();
 
     var sender_thread = try std.Thread.spawn(.{}, sender, .{&client.stream});
@@ -17,31 +17,42 @@ pub fn main() !void {
 }
 
 fn receiver(stream: *std.net.Stream) !void {
-    const stdout = std.io.getStdOut().writer();
-    const reader = stream.reader();
+    var stream_read_buf: [4096]u8 = undefined;
+    var stdout_write_buf: [4096]u8 = undefined;
+    var stream_reader = stream.reader(&stream_read_buf);
+    var stdout_writer = std.fs.File.stdout().writer(&stdout_write_buf);
     while (true) {
         var buffer: [4096]u8 = undefined;
-        const read_bytes = try reader.read(buffer[0..]);
+        const read_bytes = stream_reader.interface().readSliceShort(&buffer) catch {
+            std.log.info("client closed connection", .{});
+            std.process.exit(0);
+        };
         if (read_bytes == 0) {
             std.log.info("client closed connection", .{});
-            // client closed connection
             std.process.exit(0);
         }
-        try stdout.writeAll(buffer[0..read_bytes]);
+        try stdout_writer.interface.writeAll(buffer[0..read_bytes]);
+        try stdout_writer.interface.flush();
     }
 }
 
 fn sender(stream: *std.net.Stream) !void {
-    const stdin = std.io.getStdIn().reader();
+    var stdin_read_buf: [4096]u8 = undefined;
+    var stream_write_buf: [4096]u8 = undefined;
+    var stdin_reader = std.fs.File.stdin().reader(&stdin_read_buf);
+    var stream_writer = stream.writer(&stream_write_buf);
     while (true) {
         var buffer: [4096]u8 = undefined;
-        const read_bytes = try stdin.read(buffer[0..]);
+        const read_bytes = stdin_reader.interface.readSliceShort(&buffer) catch {
+            std.log.info("stdin closed", .{});
+            std.process.exit(0);
+        };
         if (read_bytes == 0) {
             std.log.info("stdin closed", .{});
-            // stdin closed
             std.process.exit(0);
         }
-        try stream.writeAll(buffer[0..read_bytes]);
+        try stream_writer.interface.writeAll(buffer[0..read_bytes]);
+        try stream_writer.interface.flush();
     }
 }
 
@@ -90,7 +101,7 @@ const testing = std.testing;
 
 fn expectAddress(expected: []const u8, addr: std.net.Address) !void {
     var buf: [64]u8 = undefined;
-    const actual = std.fmt.bufPrint(&buf, "{}", .{addr}) catch unreachable;
+    const actual = std.fmt.bufPrint(&buf, "{f}", .{addr}) catch unreachable;
     try testing.expectEqualStrings(expected, actual);
 }
 
