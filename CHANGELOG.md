@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.0.6](https://github.com/fujiwara/tncl/compare/v0.0.5...v0.0.6) - 2026-02-17
+- Support addr:port format for listen address by @fujiwara in https://github.com/fujiwara/tncl/pull/9
+- Migrate to Zig 0.15 by @fujiwara in https://github.com/fujiwara/tncl/pull/11
+
 ## [v0.0.5](https://github.com/fujiwara/tncl/compare/v0.0.4...v0.0.5) - 2025-05-19
 - fix typo by @fujiwara in https://github.com/fujiwara/tncl/pull/6
 - zig 0.14.0 by @fujiwara in https://github.com/fujiwara/tncl/pull/8
