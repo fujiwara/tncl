@@ -4,13 +4,21 @@ tncl is a tiny "nc -l" implementation in [Zig](https://ziglang.org/).
 
 ## Usage
 
+```
+tncl <port>
+tncl <addr:port>
+```
+
+If only a port number is given, `tncl` listens on `0.0.0.0` (all interfaces). You can also specify a bind address explicitly.
+
 ### TCP server receiving data
 
 ```console
 $ tncl 1234 > /tmp/output
+$ tncl 127.0.0.1:1234 > /tmp/output
 ```
 
-`tncl` will listen on port 1234 and write the received data to `/tmp/output`.
+`tncl` will listen on the specified address/port and write the received data to `/tmp/output`.
 
 When the client disconnects, `tncl` will exit.
 
@@ -36,7 +44,6 @@ When the all data is sent, `tncl` will close the connection and exit.
 ## Limitations
 
 - Only supports TCP.
-- Only supports IPv4.
 - Does not accept multiple connections.
 
 ## License
